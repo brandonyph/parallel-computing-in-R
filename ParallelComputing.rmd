@@ -119,7 +119,6 @@ system.time(
 )
 ```
 
-
 ```{r}
 system.time(
   output_parallel <- foreach (rowNum = allRowIndices, .combine = c) %dopar% {
@@ -152,9 +151,10 @@ series_time
 
 
 ```{r}
-
-cl <- makeCluster(2, type = "SOCK") # 4 – number of cores
+stopCluster(cl)
+cl <- makeCluster(2, type = "SOCK") # 2 – number of cores
 registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
+
 allRowIndices <-
   c(1:nrow(inputData)) # row numbers of inputData, that will be processed in parallel
 
@@ -167,10 +167,9 @@ parallel_time <- system.time(
 
 parallel_time
 ```
+
 #  Something People want to see
 ```{r}
-time <- system.time(plot(iris))
-
 plotdata <- as.data.frame(matrix(rep(1:4),ncol=2))
 plotdata$type <-  c("Series","Parallel")
 plotdata$elapsed <- c(series_time[3],parallel_time[3])
