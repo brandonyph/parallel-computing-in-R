@@ -279,16 +279,12 @@ parallel_time
 # Something People want to see
 
 ``` r
-time <- system.time(plot(iris))
-
 plotdata <- as.data.frame(matrix(rep(1:4),ncol=2))
 plotdata$type <-  c("Series","Parallel")
 plotdata$elapsed <- c(series_time[3],parallel_time[3])
 
 library(ggplot2)
 ```
-
-![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 ggplot(data=plotdata,aes(x=type,y=elapsed)) + geom_col()
