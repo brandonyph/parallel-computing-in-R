@@ -1,6 +1,7 @@
 ``` r
 rm(list=ls())
 
+#Script modified from
 #http://r-statistics.co/Parallel-Computing-With-R.html
 ```
 
@@ -11,14 +12,18 @@ rm(list=ls())
 library(doSNOW)
 ```
 
+    ## Warning: package 'doSNOW' was built under R version 4.1.1
+
     ## Loading required package: foreach
+
+    ## Warning: package 'foreach' was built under R version 4.1.1
 
     ## Loading required package: iterators
 
     ## Loading required package: snow
 
 ``` r
-cl <- makeCluster(4, type="SOCK") # 4 – number of cores
+cl <- makeCluster(2, type="SOCK") # 4 – number of cores
 registerDoSNOW(cl) # Register back end Cores for Parallel Computing
 ```
 
@@ -125,7 +130,7 @@ foreach(i = 1:28,.combine = "c") %dopar% {sqrt(i)} # example 2
 
 ``` r
 # returned output values of the parallel process are combined using 'cbind()' function
-foreach(i = 1:28,.combine = "cbind") %dopar% {letters[1:4]} # example 3 
+foreach(i = 1:28,.combine = "cbind") %dopar% {letters[1:4]} # example 3
 ```
 
     ##      result.1 result.2 result.3 result.4 result.5 result.6 result.7 result.8
@@ -156,13 +161,15 @@ myCustomFunc <- function(i){sqrt(i)+25}
 output <- foreach(i = 1:28, .combine = "cbind") %dopar% {
   myCustomFunc(i)
 }
+```
 
+``` r
 stopCluster(cl)
 ```
 
 # Examples
 
-inputData \<- matrix(1:800000, ncol=4) # prepare input data
+inputData &lt;- matrix(1:800000, ncol=4) \# prepare input data
 
 output = col1 - col2 + col3 / col4
 
@@ -175,7 +182,11 @@ for (rowNum in c(1:nrow(inputData))) {
   calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] # compute output
   output_serial <- c(output_serial, calculatedOutput) # append to output variable
 }
+
+head(output_serial)
 ```
+
+    ## [1] -19999.33 -19999.33 -19999.33 -19999.33 -19999.33 -19999.33
 
 # Running in Parallel
 
@@ -197,7 +208,11 @@ output_parallel <-
     
     return (calculatedOutput)
   }
+
+head(output_parallel)
 ```
+
+    ## [1] -19999.33 -19999.33 -19999.33 -19999.33 -19999.33 -19999.33
 
 # Calculate the time needed to run the two functions
 
@@ -213,7 +228,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    1.56    0.01    1.66
+    ##    1.97    0.01    2.00
 
 ``` r
 system.time(
@@ -225,18 +240,12 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    7.48    0.89    9.49
-
-# Unregister Cluster
-
-``` r
-stopCluster(cl)
-```
+    ##    8.91    0.67    9.71
 
 # When parallelism actually matters
 
 ``` r
-inputData <- matrix(1:400000, ncol=4)
+inputData <- matrix(1:800000, ncol=4)
 
 series_time <- system.time(
   for (rowNum in c(1:nrow(inputData))) {
@@ -251,11 +260,13 @@ series_time
 ```
 
     ##    user  system elapsed 
-    ##   22.81    0.17   24.68
+    ##  100.75    1.67  105.14
 
 ``` r
-cl <- makeCluster(4, type = "SOCK") # 4 – number of cores
+stopCluster(cl)
+cl <- makeCluster(2, type = "SOCK") # 2 – number of cores
 registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
+
 allRowIndices <-
   c(1:nrow(inputData)) # row numbers of inputData, that will be processed in parallel
 
@@ -270,7 +281,7 @@ parallel_time
 ```
 
     ##    user  system elapsed 
-    ##   85.86    6.56   99.86
+    ##   99.04    8.76  110.37
 
 # Something People want to see
 
@@ -284,4 +295,4 @@ library(ggplot2)
 ggplot(data=plotdata,aes(x=type,y=elapsed)) + geom_col()
 ```
 
-![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](ParallelComputing_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
