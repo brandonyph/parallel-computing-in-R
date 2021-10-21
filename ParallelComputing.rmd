@@ -131,7 +131,7 @@ system.time(
 #  When parallelism actually matters 
 
 ```{r}
-inputData <- matrix(1:800000, ncol=4)
+inputData <- matrix(1:1000000, ncol=4)
 
 series_time <- system.time(
   for (rowNum in c(1:nrow(inputData))) {
@@ -148,7 +148,7 @@ series_time
 
 ```{r}
 stopCluster(cl)
-cl <- makeCluster(2, type = "SOCK") # 2 – number of cores
+cl <- makeCluster(3, type = "SOCK") # 2 – number of cores
 registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
 
 allRowIndices <-

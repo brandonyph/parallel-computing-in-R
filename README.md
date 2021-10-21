@@ -228,7 +228,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    1.97    0.01    2.00
+    ##    1.96    0.01    2.02
 
 ``` r
 system.time(
@@ -240,12 +240,12 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    8.91    0.67    9.71
+    ##    9.04    0.83   10.37
 
 # When parallelism actually matters
 
 ``` r
-inputData <- matrix(1:800000, ncol=4)
+inputData <- matrix(1:1000000, ncol=4)
 
 series_time <- system.time(
   for (rowNum in c(1:nrow(inputData))) {
@@ -260,11 +260,11 @@ series_time
 ```
 
     ##    user  system elapsed 
-    ##  100.75    1.67  105.14
+    ##  150.67    2.80  155.94
 
 ``` r
 stopCluster(cl)
-cl <- makeCluster(2, type = "SOCK") # 2 – number of cores
+cl <- makeCluster(3, type = "SOCK") # 2 – number of cores
 registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
 
 allRowIndices <-
@@ -281,7 +281,7 @@ parallel_time
 ```
 
     ##    user  system elapsed 
-    ##   99.04    8.76  110.37
+    ##  131.64   12.02  146.45
 
 # Something People want to see
 
