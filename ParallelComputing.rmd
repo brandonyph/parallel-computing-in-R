@@ -1,0 +1,170 @@
+---
+title: "ParallelComputing"
+author: "Brandon"
+date: "10/21/2021"
+output:
+  md_document:
+    variant: gfm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+rm(list=ls())
+
+#http://r-statistics.co/Parallel-Computing-With-R.html
+```
+
+# Register a SOCK and number of cores 
+
+```{r}
+# Registering cores for parallel process
+library(doSNOW)
+
+cl <- makeCluster(2, type="SOCK") # 4 – number of cores
+registerDoSNOW(cl) # Register back end Cores for Parallel Computing
+```
+
+# Some simple parallel code 
+
+```{r}
+library(foreach)
+foreach(i = 1:28) %dopar% {sqrt(i)} # example 1
+
+# returned output values of the parallel process are combined using 'c()' function
+foreach(i = 1:28,.combine = "c") %dopar% {sqrt(i)} # example 2
+
+# returned output values of the parallel process are combined using 'cbind()' function
+foreach(i = 1:28,.combine = "cbind") %dopar% {letters[1:4]} # example 3 
+
+# Using your custom defined function: "myCustomFunc()" and store in 'output' variable # Example 4
+myCustomFunc <- function(i){sqrt(i)+25}
+
+output <- foreach(i = 1:28, .combine = "cbind") %dopar% {
+  myCustomFunc(i)
+}
+
+stopCluster(cl)
+```
+
+# Examples 
+
+inputData <- matrix(1:800000, ncol=4) # prepare input data
+
+output = col1 - col2 + col3 / col4
+
+```{r}
+inputData <- matrix(1:80000, ncol=4)
+
+output_serial <- numeric() # initialize output
+
+for (rowNum in c(1:nrow(inputData))) {
+  calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] # compute output
+  output_serial <- c(output_serial, calculatedOutput) # append to output variable
+}
+```
+
+# Running in Parallel 
+
+```{r}
+library(doSNOW)
+
+cl <- makeCluster(2, type = "SOCK") # 4 – number of cores
+registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
+allRowIndices <-
+  c(1:nrow(inputData)) # row numbers of inputData, that will be processed in parallel
+
+output_parallel <-
+  foreach (rowNum = allRowIndices, .combine = c) %dopar% {
+    
+    # compute output
+    
+    calculatedOutput <-
+      inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] 
+    
+    return (calculatedOutput)
+  }
+```
+
+# Calculate the time needed to run the two functions 
+
+```{r}
+system.time(
+  for (rowNum in c(1:nrow(inputData))) {
+    calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] 
+    
+    # compute output
+    output_serial <- c(output_serial, calculatedOutput) # append to output variable
+  }
+)
+```
+
+
+```{r}
+system.time(
+  output_parallel <- foreach (rowNum = allRowIndices, .combine = c) %dopar% {
+    calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] # compute output
+    return (calculatedOutput)
+  }
+)
+```
+#  Unregister Cluster
+```{r}
+stopCluster(cl)
+```
+
+#  When parallelism actually matters 
+
+```{r}
+inputData <- matrix(1:800000, ncol=4)
+
+series_time <- system.time(
+  for (rowNum in c(1:nrow(inputData))) {
+    calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] 
+    
+    # compute output
+    output_serial <- c(output_serial, calculatedOutput) # append to output variable
+  }
+)
+
+series_time
+```
+
+
+```{r}
+
+cl <- makeCluster(2, type = "SOCK") # 4 – number of cores
+registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
+allRowIndices <-
+  c(1:nrow(inputData)) # row numbers of inputData, that will be processed in parallel
+
+parallel_time <- system.time(
+  output_parallel <- foreach (rowNum = allRowIndices, .combine = c) %dopar% {
+    calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] # compute output
+    return (calculatedOutput)
+  }
+)
+
+parallel_time
+```
+#  Something People want to see
+```{r}
+time <- system.time(plot(iris))
+
+plotdata <- as.data.frame(matrix(rep(1:4),ncol=2))
+plotdata$type <-  c("Series","Parallel")
+plotdata$elapsed <- c(series_time[3],parallel_time[3])
+
+library(ggplot2)
+
+ggplot(data=plotdata,aes(x=type,y=elapsed)) + geom_col()
+```
+
+
+
+
+
+
