@@ -1,6 +1,7 @@
 ``` r
 rm(list=ls())
 
+#Script modified from
 #http://r-statistics.co/Parallel-Computing-With-R.html
 ```
 
@@ -129,7 +130,7 @@ foreach(i = 1:28,.combine = "c") %dopar% {sqrt(i)} # example 2
 
 ``` r
 # returned output values of the parallel process are combined using 'cbind()' function
-foreach(i = 1:28,.combine = "cbind") %dopar% {letters[1:4]} # example 3 
+foreach(i = 1:28,.combine = "cbind") %dopar% {letters[1:4]} # example 3
 ```
 
     ##      result.1 result.2 result.3 result.4 result.5 result.6 result.7 result.8
@@ -160,7 +161,9 @@ myCustomFunc <- function(i){sqrt(i)+25}
 output <- foreach(i = 1:28, .combine = "cbind") %dopar% {
   myCustomFunc(i)
 }
+```
 
+``` r
 stopCluster(cl)
 ```
 
@@ -179,7 +182,11 @@ for (rowNum in c(1:nrow(inputData))) {
   calculatedOutput <- inputData[rowNum, 1] - inputData[rowNum, 2] + inputData[rowNum, 3] / inputData[rowNum, 4] # compute output
   output_serial <- c(output_serial, calculatedOutput) # append to output variable
 }
+
+head(output_serial)
 ```
+
+    ## [1] -19999.33 -19999.33 -19999.33 -19999.33 -19999.33 -19999.33
 
 # Running in Parallel
 
@@ -201,7 +208,11 @@ output_parallel <-
     
     return (calculatedOutput)
   }
+
+head(output_parallel)
 ```
+
+    ## [1] -19999.33 -19999.33 -19999.33 -19999.33 -19999.33 -19999.33
 
 # Calculate the time needed to run the two functions
 
@@ -217,7 +228,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    2.03    0.03    2.07
+    ##    1.98    0.02    2.02
 
 ``` r
 system.time(
@@ -229,9 +240,9 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    8.62    0.67    9.39
+    ##    8.59    0.89    9.70
 
-# Unregister Cluster
+# Unregistering Cluster
 
 ``` r
 stopCluster(cl)
@@ -255,7 +266,7 @@ series_time
 ```
 
     ##    user  system elapsed 
-    ##  100.19    1.34  104.11
+    ##   99.14    0.82  100.78
 
 ``` r
 cl <- makeCluster(2, type = "SOCK") # 4 – number of cores
@@ -274,7 +285,7 @@ parallel_time
 ```
 
     ##    user  system elapsed 
-    ##  101.18    9.28  113.37
+    ##   97.57    8.78  108.88
 
 # Something People want to see
 
@@ -288,10 +299,10 @@ plotdata$elapsed <- c(series_time[3],parallel_time[3])
 library(ggplot2)
 ```
 
-![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](ParallelComputing_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 ggplot(data=plotdata,aes(x=type,y=elapsed)) + geom_col()
 ```
 
-![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](ParallelComputing_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
