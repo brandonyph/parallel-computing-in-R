@@ -11,18 +11,14 @@ rm(list=ls())
 library(doSNOW)
 ```
 
-    ## Warning: package 'doSNOW' was built under R version 4.1.1
-
     ## Loading required package: foreach
-
-    ## Warning: package 'foreach' was built under R version 4.1.1
 
     ## Loading required package: iterators
 
     ## Loading required package: snow
 
 ``` r
-cl <- makeCluster(2, type="SOCK") # 4 – number of cores
+cl <- makeCluster(4, type="SOCK") # 4 – number of cores
 registerDoSNOW(cl) # Register back end Cores for Parallel Computing
 ```
 
@@ -166,7 +162,7 @@ stopCluster(cl)
 
 # Examples
 
-inputData &lt;- matrix(1:800000, ncol=4) \# prepare input data
+inputData \<- matrix(1:800000, ncol=4) # prepare input data
 
 output = col1 - col2 + col3 / col4
 
@@ -217,7 +213,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    2.03    0.03    2.07
+    ##    1.56    0.01    1.66
 
 ``` r
 system.time(
@@ -229,7 +225,7 @@ system.time(
 ```
 
     ##    user  system elapsed 
-    ##    8.62    0.67    9.39
+    ##    7.48    0.89    9.49
 
 # Unregister Cluster
 
@@ -240,7 +236,7 @@ stopCluster(cl)
 # When parallelism actually matters
 
 ``` r
-inputData <- matrix(1:800000, ncol=4)
+inputData <- matrix(1:400000, ncol=4)
 
 series_time <- system.time(
   for (rowNum in c(1:nrow(inputData))) {
@@ -255,10 +251,10 @@ series_time
 ```
 
     ##    user  system elapsed 
-    ##  100.19    1.34  104.11
+    ##   22.81    0.17   24.68
 
 ``` r
-cl <- makeCluster(2, type = "SOCK") # 4 – number of cores
+cl <- makeCluster(4, type = "SOCK") # 4 – number of cores
 registerDoSNOW(cl) # Register Backend Cores for Parallel Computing
 allRowIndices <-
   c(1:nrow(inputData)) # row numbers of inputData, that will be processed in parallel
@@ -274,7 +270,7 @@ parallel_time
 ```
 
     ##    user  system elapsed 
-    ##  101.18    9.28  113.37
+    ##   85.86    6.56   99.86
 
 # Something People want to see
 
@@ -284,10 +280,8 @@ plotdata$type <-  c("Series","Parallel")
 plotdata$elapsed <- c(series_time[3],parallel_time[3])
 
 library(ggplot2)
-```
 
-``` r
 ggplot(data=plotdata,aes(x=type,y=elapsed)) + geom_col()
 ```
 
-![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](ParallelComputing_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
